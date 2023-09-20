@@ -47,6 +47,6 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         data_folder_name = sys.argv[1]
     else:
-        data_folder_name = os.path.join("datasets", "data_12x12_10vic")
+        data_folder_name = os.path.join("datasets", "data_20x20_42vic")
 
     main(data_folder_name)
