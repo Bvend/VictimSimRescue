@@ -25,6 +25,7 @@ class Explorer(AbstractAgent):
         self.rtime = self.TLIM     # remaining time to explore
 
         self.dir = random.choice([0, 1, 2, 3]); # ru, rd, ld, lu
+        # self.map = {}
 
 
     def deliberate(self) -> bool:
@@ -45,7 +46,7 @@ class Explorer(AbstractAgent):
 
         dx = 0
         dy = 0
-        rand = random.choice([0, 1, 2, 3, 4, 5, 6, 7])
+        rand = random.choice([0, 1, 2, 3, 4, 5])
         if self.dir == 0:
             if rand < 3 or rand >= 6:
                 dx = 1
