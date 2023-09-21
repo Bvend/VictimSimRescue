@@ -38,7 +38,7 @@ def main(data_folder_name):
 
     # Run the environment simulator
     env.run()
-
+    
 
 if __name__ == '__main__':
     """ To get data from a different folder than the default called data

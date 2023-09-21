@@ -10,6 +10,9 @@ from physical_agent import PhysAgent
 from abc import ABC, abstractmethod
 
 
+pos_vict = []
+
+
 class Explorer(AbstractAgent):
     def __init__(self, env, config_file, resc):
         """ Construtor do agente random on-line
@@ -24,7 +27,7 @@ class Explorer(AbstractAgent):
         self.resc = resc           # reference to the rescuer agent
         self.rtime = self.TLIM     # remaining time to explore
 
-        self.victim = {}
+        self.victim = []
 
         self.dir = random.choice([0, 1, 2, 3]); # ru, rd, ld, lu
         self.x = 0
@@ -43,7 +46,10 @@ class Explorer(AbstractAgent):
             # pass the walls and the victims (here, they're empty)
             print(f"{self.NAME} I believe I've remaining time of {self.rtime:.1f}")
             # self.resc.go_save_victims([],[])
-            self.resc.body.set_state(PhysAgent.ENDED)                                  ##
+            self.resc.body.set_state(PhysAgent.ENDED)                                ##
+            for vict in self.victim:
+                if not((self.x, self.y) in self.victim):
+                    pos_vict.append(vict)
             return False
 
         # Check the neighborhood obstacles
@@ -189,7 +195,61 @@ class Explorer(AbstractAgent):
                     self.rtime -= self.COST_READ
                     # print("exp: read vital signals of " + str(seq))
                     # print(vs)
-                    self.victim[(self.x, self.y)] = seq
+                    #self.victim[(self.x, self.y)] = seq                        ##
+                    self.victim.append((self.x, self.y))
 
         return True
 
+
+    @staticmethod
+    def clustering():
+        INF = 1123456789
+        minx = INF
+        miny = INF
+        maxx = -INF
+        maxy = -INF
+        for vict in pos_vict: # victms[i][0] eh o x e victims[i][1] eh o y
+            if (vict[0] < minx):
+                minx = vict[0]
+            if (vict[1] < miny):
+                miny = vict[1]
+            if (vict[0] > maxx):
+                maxx = vict[0]
+            if (vict[1] > maxy):
+                maxy = vict[1]
+        max_iterations = 112345
+        current_it = 0
+        updated_clusters = 1
+        vict_cent = [-1 for i in range(len(pos_vict))]
+        cent_coord = []
+        for i in range(4):
+            cent_coord.append((random.choice(range(minx, maxx+1)),\
+                               random.choice(range(miny, maxy+1))))
+        while updated_clusters and current_it < max_iterations:
+            updated_clusters = 0
+            current_it += 1
+            new_vict_cent = []
+            for i in range(len(pos_vict)):
+                best_centroid = -1
+                best_dist = INF
+                for j in range(4):
+                    dist = ((pos_vict[i][0]-cent_coord[j][0])**2 + (pos_vict[i][1]-cent_coord[j][1])**2)**0.5
+                    if dist < best_dist:
+                        best_centroid = j
+                        best_dist = dist
+                new_vict_cent.append(best_centroid)
+            num_vict_in_cent = [0 for i in range(4)]
+            for i in range(4):
+                cent_coord[i] = (0,0)
+            for i in range(len(pos_vict)):
+                if vict_cent[i] != new_vict_cent[i]:
+                    updated_clusters = 1
+                    vict_cent[i] = new_vict_cent[i]
+                num_vict_in_cent[new_vict_cent[i]] += 1
+                cent_coord[new_vict_cent[i]] = (cent_coord[new_vict_cent[i]][0] + pos_vict[i][0],\
+                                                cent_coord[new_vict_cent[i]][1] + pos_vict[i][1])
+            
+            for i in range(4):
+                if num_vict_in_cent[i] != 0:
+                    cent_coord[i] = (cent_coord[i][0] / num_vict_in_cent[i],\
+                                     cent_coord[i][1] / num_vict_in_cent[i])

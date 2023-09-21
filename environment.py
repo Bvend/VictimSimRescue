@@ -10,6 +10,8 @@ import time
 from abstract_agent import AbstractAgent
 from physical_agent import PhysAgent
 
+from explorer import Explorer
+
 
 ## Class Environment
 class Env:
@@ -268,10 +270,12 @@ class Env:
                 print("\n--------------")
                 input("from env: Tecle qualquer coisa para encerrar >>")
                 running = False
-   
+
+        Explorer.clustering()
 
         # Quit Pygame
         pygame.quit()
+
 
     def __print_victims(self, victims, type_str, sub):
         """ Print either the found or the saved victims list
