@@ -24,8 +24,13 @@ class Explorer(AbstractAgent):
         self.resc = resc           # reference to the rescuer agent
         self.rtime = self.TLIM     # remaining time to explore
 
+        self.victim = {}
+
         self.dir = random.choice([0, 1, 2, 3]); # ru, rd, ld, lu
-        # self.map = {}
+        self.x = 0
+        self.y = 0
+        self.path = {}
+        self.path[(0, 0)] = [0, (0, 0)]
 
 
     def deliberate(self) -> bool:
@@ -44,9 +49,10 @@ class Explorer(AbstractAgent):
         # Check the neighborhood obstacles
         obstacles = self.body.check_obstacles()
 
+        # Determines next position
         dx = 0
         dy = 0
-        rand = random.choice([0, 1, 2, 3, 4, 5])
+        rand = random.choice(range(0, 8))
         if self.dir == 0:
             if rand < 3 or rand >= 6:
                 dx = 1
@@ -129,7 +135,37 @@ class Explorer(AbstractAgent):
                 dx = -1
                 dy = -1
 
+        # Updates return path and costs
+        tx = [0, 1, 1, 1, 0, -1, -1, -1]
+        ty = [-1, -1, 0, 1, 1, 1, 0, -1]
+        parent = self.path[(self.x, self.y)][1]
+        for i in range(0, 8):
+            if (self.x + tx[i], self.y + ty[i]) in self.path:
+                if self.path[(self.x + tx[i], self.y + ty[i])][0] < self.path[parent][0]:
+                    parent = (self.x + tx[i], self.y + ty[i])
+        if parent != self.path[(self.x, self.y)][1]:
+            if self.x != parent[0] and self.y != parent[1]:
+                self.path[(self.x, self.y)][0] = self.path[parent][0] + self.COST_DIAG
+            else:
+                self.path[(self.x, self.y)][0] = self.path[parent][0] + self.COST_LINE
+            self.path[(self.x, self.y)][1] = parent
+
+        # Sets expected cost for the next position
+        if not((self.x + dx, self.y + dy) in self.path):
+            if dx != 0 and dy != 0:
+                cost = self.path[(self.x, self.y)][0] + self.COST_DIAG
+            else:
+                cost = self.path[(self.x, self.y)][0] + self.COST_LINE
+            self.path[(self.x + dx, self.y + dy)] = [cost, (self.x, self.y)]
+
+        # Considers returning to base
+        if self.path[(self.x + dx, self.y + dy)][0] > self.rtime - self.COST_READ - 10.0:
+            dx = self.path[(self.x, self.y)][1][0] - self.x
+            dy = self.path[(self.x, self.y)][1][1] - self.y
+
         # Moves the body to another position
+        self.x += dx
+        self.y += dy
         result = self.body.walk(dx, dy)
 
         # Update remaining time
@@ -148,10 +184,12 @@ class Explorer(AbstractAgent):
             # the sequential number of a found victim
             seq = self.body.check_for_victim()
             if seq >= 0:
-                vs = self.body.read_vital_signals(seq)
-                self.rtime -= self.COST_READ
-                # print("exp: read vital signals of " + str(seq))
-                # print(vs)
+                if not((self.x, self.y) in self.victim):
+                    vs = self.body.read_vital_signals(seq)
+                    self.rtime -= self.COST_READ
+                    # print("exp: read vital signals of " + str(seq))
+                    # print(vs)
+                    self.victim[(self.x, self.y)] = seq
 
         return True
 
