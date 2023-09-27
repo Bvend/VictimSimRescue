@@ -140,6 +140,17 @@ class Explorer(AbstractAgent):
             else:
                 dx = -1
                 dy = -1
+        if (self.x + dx, self.y + dy) in self.path:
+            tx = [0, 1, 1, 1, 0, -1, -1, -1]
+            ty = [-1, -1, 0, 1, 1, 1, 0, -1]
+            options_ = []
+            for i in range(0, 8):
+                if obstacles[i] == PhysAgent.CLEAR and not((self.x + tx[i], self.y + ty[i]) in self.path):
+                    options_.append(i)
+            if len(options_) != 0:
+                rand = random.choice(options_)
+                dx = tx[rand]
+                dy = ty[rand]
 
         # Updates return path and costs
         tx = [0, 1, 1, 1, 0, -1, -1, -1]
@@ -217,7 +228,7 @@ class Explorer(AbstractAgent):
                 maxx = vict[0]
             if (vict[1] > maxy):
                 maxy = vict[1]
-        max_iterations = 112345
+        max_iterations = 1123456
         current_it = 0
         updated_clusters = 1
         vict_cent = [-1 for i in range(len(pos_vict))]
@@ -248,8 +259,16 @@ class Explorer(AbstractAgent):
                 num_vict_in_cent[new_vict_cent[i]] += 1
                 cent_coord[new_vict_cent[i]] = (cent_coord[new_vict_cent[i]][0] + pos_vict[i][0],\
                                                 cent_coord[new_vict_cent[i]][1] + pos_vict[i][1])
-            
+
             for i in range(4):
                 if num_vict_in_cent[i] != 0:
                     cent_coord[i] = (cent_coord[i][0] / num_vict_in_cent[i],\
                                      cent_coord[i][1] / num_vict_in_cent[i])
+        for i in range(miny, maxy + 1):
+            for j in range(minx, maxx + 1):
+                if (j, i) in pos_vict:
+                    id = pos_vict.index((j, i))
+                    print(f"{vict_cent[id]}", end="")
+                else:
+                    print(" ", end="")
+            print("")
