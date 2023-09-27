@@ -19,18 +19,14 @@ def main(data_folder_name):
     env = Env(data_folder)
 
     # config files for the agents
-    rescuer_file = os.path.join(data_folder, "rescuer_config.txt")
     explorer_file = []
-    explorer_file.append(os.path.join(data_folder, "explorer_config.txt"))
-    explorer_file.append(os.path.join(data_folder, "explorer_config.txt"))
-    explorer_file.append(os.path.join(data_folder, "explorer_config.txt"))
-    explorer_file.append(os.path.join(data_folder, "explorer_config.txt"))
-    #explorer_file.append(os.path.join(data_folder, "explorer0_config.txt"))
-    #explorer_file.append(os.path.join(data_folder, "explorer1_config.txt"))
-    #explorer_file.append(os.path.join(data_folder, "explorer2_config.txt"))
-    #explorer_file.append(os.path.join(data_folder, "explorer3_config.txt"))
+    explorer_file.append(os.path.join(data_folder, "explorer0_config.txt"))
+    explorer_file.append(os.path.join(data_folder, "explorer1_config.txt"))
+    explorer_file.append(os.path.join(data_folder, "explorer2_config.txt"))
+    explorer_file.append(os.path.join(data_folder, "explorer3_config.txt"))
 
     # Instantiate agents rescuer and explorer
+    rescuer_file = os.path.join(data_folder, "rescuer_config.txt")
     resc = Rescuer(env, rescuer_file)
 
     # Explorer needs to know rescuer to send the map
