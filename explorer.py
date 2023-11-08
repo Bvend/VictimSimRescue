@@ -9,7 +9,6 @@ from abstract_agent import AbstractAgent
 from physical_agent import PhysAgent
 from abc import ABC, abstractmethod
 
-
 pos_vict = []
 
 
@@ -24,17 +23,16 @@ class Explorer(AbstractAgent):
         super().__init__(env, config_file)
 
         # Specific initialization for the rescuer
-        self.resc = resc           # reference to the rescuer agent
-        self.rtime = self.TLIM     # remaining time to explore
+        self.resc = resc  # reference to the rescuer agent
+        self.rtime = self.TLIM  # remaining time to explore
 
         self.victim = []
 
-        self.dir = random.choice([0, 1, 2, 3]); # ru, rd, ld, lu
+        self.dir = random.choice([0, 1, 2, 3]);  # ru, rd, ld, lu
         self.x = 0
         self.y = 0
         self.path = {}
         self.path[(0, 0)] = [0, (0, 0)]
-
 
     def deliberate(self) -> bool:
         """ The agent chooses the next action. The simulator calls this
@@ -46,9 +44,9 @@ class Explorer(AbstractAgent):
             # pass the walls and the victims (here, they're empty)
             print(f"{self.NAME} I believe I've remaining time of {self.rtime:.1f}")
             # self.resc.go_save_victims([],[])
-            self.resc.body.set_state(PhysAgent.ENDED)                                ##
+            self.resc.body.set_state(PhysAgent.ENDED)  ##
             for vict in self.victim:
-                if not((self.x, self.y) in self.victim):
+                if not ((self.x, self.y) in self.victim):
                     pos_vict.append(vict)
             return False
 
@@ -103,14 +101,14 @@ class Explorer(AbstractAgent):
                 self.dir = 2
             elif obstacles[6] != PhysAgent.CLEAR:
                 self.dir = 0
-        if dx == 0 and dy == -1 and obstacles[0] != PhysAgent.CLEAR\
-        or dx == 1 and dy == -1 and obstacles[1] != PhysAgent.CLEAR\
-        or dx == 1 and dy == 0 and obstacles[2] != PhysAgent.CLEAR\
-        or dx == 1 and dy == 1 and obstacles[3] != PhysAgent.CLEAR\
-        or dx == 0 and dy == 1 and obstacles[4] != PhysAgent.CLEAR\
-        or dx == -1 and dy == 1 and obstacles[5] != PhysAgent.CLEAR\
-        or dx == -1 and dy == 0 and obstacles[6] != PhysAgent.CLEAR\
-        or dx == -1 and dy == -1 and obstacles[7] != PhysAgent.CLEAR:
+        if dx == 0 and dy == -1 and obstacles[0] != PhysAgent.CLEAR \
+                or dx == 1 and dy == -1 and obstacles[1] != PhysAgent.CLEAR \
+                or dx == 1 and dy == 0 and obstacles[2] != PhysAgent.CLEAR \
+                or dx == 1 and dy == 1 and obstacles[3] != PhysAgent.CLEAR \
+                or dx == 0 and dy == 1 and obstacles[4] != PhysAgent.CLEAR \
+                or dx == -1 and dy == 1 and obstacles[5] != PhysAgent.CLEAR \
+                or dx == -1 and dy == 0 and obstacles[6] != PhysAgent.CLEAR \
+                or dx == -1 and dy == -1 and obstacles[7] != PhysAgent.CLEAR:
             options = []
             for i in range(0, 8):
                 if obstacles[i] == PhysAgent.CLEAR:
@@ -145,7 +143,7 @@ class Explorer(AbstractAgent):
             ty = [-1, -1, 0, 1, 1, 1, 0, -1]
             options_ = []
             for i in range(0, 8):
-                if obstacles[i] == PhysAgent.CLEAR and not((self.x + tx[i], self.y + ty[i]) in self.path):
+                if obstacles[i] == PhysAgent.CLEAR and not ((self.x + tx[i], self.y + ty[i]) in self.path):
                     options_.append(i)
             if len(options_) != 0:
                 rand = random.choice(options_)
@@ -168,7 +166,7 @@ class Explorer(AbstractAgent):
             self.path[(self.x, self.y)][1] = parent
 
         # Sets expected cost for the next position
-        if not((self.x + dx, self.y + dy) in self.path):
+        if not ((self.x + dx, self.y + dy) in self.path):
             if dx != 0 and dy != 0:
                 cost = self.path[(self.x, self.y)][0] + self.COST_DIAG
             else:
@@ -201,16 +199,15 @@ class Explorer(AbstractAgent):
             # the sequential number of a found victim
             seq = self.body.check_for_victim()
             if seq >= 0:
-                if not((self.x, self.y) in self.victim):
+                if not ((self.x, self.y) in self.victim):
                     vs = self.body.read_vital_signals(seq)
                     self.rtime -= self.COST_READ
                     # print("exp: read vital signals of " + str(seq))
                     # print(vs)
-                    #self.victim[(self.x, self.y)] = seq                        ##
+                    # self.victim[(self.x, self.y)] = seq                        ##
                     self.victim.append((self.x, self.y))
 
         return True
-
 
     @staticmethod
     def clustering():
@@ -219,14 +216,14 @@ class Explorer(AbstractAgent):
         miny = INF
         maxx = -INF
         maxy = -INF
-        for vict in pos_vict: # victms[i][0] eh o x e victims[i][1] eh o y
-            if (vict[0] < minx):
+        for vict in pos_vict:  # victms[i][0] eh o x e victims[i][1] eh o y
+            if vict[0] < minx:
                 minx = vict[0]
-            if (vict[1] < miny):
+            if vict[1] < miny:
                 miny = vict[1]
-            if (vict[0] > maxx):
+            if vict[0] > maxx:
                 maxx = vict[0]
-            if (vict[1] > maxy):
+            if vict[1] > maxy:
                 maxy = vict[1]
         max_iterations = 1123456
         current_it = 0
@@ -234,8 +231,8 @@ class Explorer(AbstractAgent):
         vict_cent = [-1 for i in range(len(pos_vict))]
         cent_coord = []
         for i in range(4):
-            cent_coord.append((random.choice(range(minx, maxx+1)),\
-                               random.choice(range(miny, maxy+1))))
+            cent_coord.append((random.choice(range(minx, maxx + 1)), \
+                               random.choice(range(miny, maxy + 1))))
         while updated_clusters and current_it < max_iterations:
             updated_clusters = 0
             current_it += 1
@@ -244,25 +241,25 @@ class Explorer(AbstractAgent):
                 best_centroid = -1
                 best_dist = INF
                 for j in range(4):
-                    dist = ((pos_vict[i][0]-cent_coord[j][0])**2 + (pos_vict[i][1]-cent_coord[j][1])**2)**0.5
+                    dist = ((pos_vict[i][0] - cent_coord[j][0]) ** 2 + (pos_vict[i][1] - cent_coord[j][1]) ** 2) ** 0.5
                     if dist < best_dist:
                         best_centroid = j
                         best_dist = dist
                 new_vict_cent.append(best_centroid)
             num_vict_in_cent = [0 for i in range(4)]
             for i in range(4):
-                cent_coord[i] = (0,0)
+                cent_coord[i] = (0, 0)
             for i in range(len(pos_vict)):
                 if vict_cent[i] != new_vict_cent[i]:
                     updated_clusters = 1
                     vict_cent[i] = new_vict_cent[i]
                 num_vict_in_cent[new_vict_cent[i]] += 1
-                cent_coord[new_vict_cent[i]] = (cent_coord[new_vict_cent[i]][0] + pos_vict[i][0],\
+                cent_coord[new_vict_cent[i]] = (cent_coord[new_vict_cent[i]][0] + pos_vict[i][0], \
                                                 cent_coord[new_vict_cent[i]][1] + pos_vict[i][1])
 
             for i in range(4):
                 if num_vict_in_cent[i] != 0:
-                    cent_coord[i] = (cent_coord[i][0] / num_vict_in_cent[i],\
+                    cent_coord[i] = (cent_coord[i][0] / num_vict_in_cent[i], \
                                      cent_coord[i][1] / num_vict_in_cent[i])
         for i in range(miny, maxy + 1):
             for j in range(minx, maxx + 1):
