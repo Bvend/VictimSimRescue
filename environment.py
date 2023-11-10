@@ -10,7 +10,7 @@ import time
 from abstract_agent import AbstractAgent
 from physical_agent import PhysAgent
 
-from explorer import Explorer
+from explorer import *
 
 
 ## Class Environment
@@ -48,6 +48,8 @@ class Env:
         self.signals = []      # positional: the vital signals of the victims [[i,s1,...,s5,g,l],...]
         self.found   = [[]]    # positional: Physical agents that found each victim [[ag1] [ag2, ag3], ...] ag1 found vict 0, ag2 and 3, vict 1, ...
         self.saved   = [[]]    # positional: Physical agents that saved each victim
+
+        self.rescuer_list = []
 
         # Read the environment config file
         self.__read_config()
@@ -224,6 +226,7 @@ class Env:
 
         # Create the main loop
         running = True
+        done_clustering = False
 
         while running:
             # Handle events
@@ -233,6 +236,7 @@ class Env:
 
             # control whether or not there are active or idle agents
             active_or_idle = False
+            active_or_idle_explorer = False
 
             # ask each agent to deliberate the next action
             for body in self.agents:
@@ -240,6 +244,8 @@ class Env:
                 # Asks the agent to choose and to do the next action if it is ACTIVE
                 if body.state == PhysAgent.ACTIVE:
                     active_or_idle = True
+                    if body.mind.NAME == "EXPLORER":
+                        active_or_idle_explorer = True
                     more_actions_to_do = body.mind.deliberate()
 
                     # Test if the agent exceeded the time limit
@@ -256,6 +262,8 @@ class Env:
 
                 elif body.state == PhysAgent.IDLE:
                     active_or_idle = True
+                    if body.mind.NAME == "EXPLORER":
+                        active_or_idle_explorer = True      
 
             # Update the grid after the delay
             if self.dic["DELAY"] > 0:
@@ -263,11 +271,23 @@ class Env:
 
             self.__draw()
 
+            if not active_or_idle_explorer and not done_clustering:
+                Explorer.clustering()
+                done_clustering = True
+                wall_list = Explorer.fill_walls()
+                for idx, resc in enumerate(self.rescuer_list):
+                    resc_vict = []
+                    for vict_idx, cent in enumerate(Explorer.vict_cent):
+                        if cent == idx:
+                            resc_vict.append((pos_vict[vict_idx], grav_vict[vict_idx]))
+                    resc.go_save_victims(wall_list,resc_vict)
+
+
+
             # Show metrics
             if not active_or_idle:
                 print("from env: no active or idle agent scheduled for execution... terminating")
-                self.print_results()
-                Explorer.clustering()                                                           ##
+                self.print_results()                                                           
                 print("\n--------------")
                 input("from env: Tecle qualquer coisa para encerrar >>")
                 running = False
@@ -320,6 +340,7 @@ class Env:
         This is what actually happened in the environment. Observe that the
         beliefs of the agents may be different."""
         total_vi = set()
+        total_saved = set()
         print("\n\n\n*** Numbers of Victims in the Environment ***")
         print(f"Critical victims   (V1) = {self.severity.count(1):3d}")
         print(f"Instable victims   (V2) = {self.severity.count(2):3d}")
@@ -349,11 +370,18 @@ class Env:
             saved = body.get_saved_victims()
             self.__print_victims(saved, "saved","s")
 
+            for vi in saved:
+                total_saved.add(vi)
+
         print("\n[ TOTAL RESULTS ]")
         self.__print_victims(list(total_vi), "found","e")
 
+        print("\n[ TOTAL SAVED RESULTS ]")
+        self.__print_victims(list(total_saved), "saved","e")
 
-
+        with open('salvas.txt', 'w') as f:
+            for i in range(len(total_saved)):
+                f.write('%s,%s,%s\n' % (saved[0], 0, saved[2]))
 
 
 

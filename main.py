@@ -15,7 +15,6 @@ def main(data_folder_name):
     current_folder = os.path.abspath(os.getcwd())
     data_folder = os.path.abspath(os.path.join(current_folder, data_folder_name))
 
-
     # Instantiate the environment
     env = Env(data_folder)
 
@@ -32,6 +31,10 @@ def main(data_folder_name):
     resc1 = Rescuer(env, rescuer_file)
     resc2 = Rescuer(env, rescuer_file)
     resc3 = Rescuer(env, rescuer_file)
+    env.rescuer_list.append(resc0)
+    env.rescuer_list.append(resc1)
+    env.rescuer_list.append(resc2)
+    env.rescuer_list.append(resc3)
 
     # Explorer needs to know rescuer to send the map
     # that's why rescuer is instatiated before
@@ -40,8 +43,6 @@ def main(data_folder_name):
     exp2 = Explorer(env, explorer_file[2], resc2)
     exp3 = Explorer(env, explorer_file[3], resc3)
 
-    # Instantiate classifier
-    classifier = Classifier("datasets/data_800vic/sinais_vitais_com_label.txt")
     # print(classifier.classify(8.733333,137.327563,8.177913))
 
     # Run the environment simulator
@@ -55,6 +56,6 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         data_folder_name = sys.argv[1]
     else:
-        data_folder_name = os.path.join("datasets", "data_100x80_132vic")
+        data_folder_name = os.path.join("datasets", "data_aula")
 
     main(data_folder_name)

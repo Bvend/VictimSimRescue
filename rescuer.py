@@ -33,9 +33,9 @@ class Rescuer(AbstractAgent):
         genetic = Genetic(10, victims, walls, self.TLIM)
 
         sol, map = genetic.run()
-        print(sol)
+        #print(sol)
 
-        print(sol[2].tolist()[0])
+        #print(sol[2].tolist()[0])
         # exit()
         # print(genetic.genesis())
         self.__planner(sol[2].tolist()[0], map)
@@ -49,7 +49,7 @@ class Rescuer(AbstractAgent):
 
         # This is a off-line trajectory plan, each element of the list is
         # a pair dx, dy that do the agent walk in the x-axis and/or y-axis
-        print(map)
+        #print(map)
         for i in range(len(solution) - 1):
             for move in map[solution[i]][solution[i + 1]]["trajectory"]:
                 self.plan.append(move)

@@ -104,13 +104,13 @@ class Genetic:
             return self._fitness_eval(victim_list)
         # print(self.victim_dict_coordinate)
         for victim in victim_list:
-            if self.victim_dict_coordinate[victim]["severity"] == '1':
+            if self.victim_dict_coordinate[victim]["severity"] == 1:
                 points += 6
-            if self.victim_dict_coordinate[victim]["severity"] == '2':
+            if self.victim_dict_coordinate[victim]["severity"] == 2:
                 points += 3
-            if self.victim_dict_coordinate[victim]["severity"] == '3':
+            if self.victim_dict_coordinate[victim]["severity"] == 3:
                 points += 2
-            if self.victim_dict_coordinate[victim]["severity"] == '4':
+            if self.victim_dict_coordinate[victim]["severity"] == 4:
                 points += 1
         # print(fit)
         return points / total
@@ -129,7 +129,14 @@ class Genetic:
 
     def _progenitor_selection(self):
         total_fit = self.fitness_list.sum()
-        prob_list = self.fitness_list / total_fit
+        #print(total_fit)
+        #print("asdddddddddddddddddddddddddddddddddddddddddddddddddddddddd")
+        if total_fit == 0:
+            prob_list = np.zeros(self.n_population)
+            for i in range(len(prob_list)):
+                prob_list[i] = 1 / len(prob_list)
+        else:
+            prob_list = self.fitness_list / total_fit
         # print(prob_list)
         # exit()
 
@@ -182,6 +189,7 @@ class Genetic:
         self.fitness_list = self._get_all_fitnes()
         # mutated_pop = self.mutate_population(self.population)
         best_solution = [-1, 0, np.array([])]
+
         for i in range(1000):
             if i % 100 == 0: print(i, self.fitness_list.max(), self.fitness_list.mean(),
                                    datetime.now().strftime("%d/%m/%y %H:%M"))
@@ -195,6 +203,6 @@ class Genetic:
 
             progenitor_list = self._progenitor_selection()
             new_population_set = self._mate_population(progenitor_list)
-
             self.population = self._mutate_population(new_population_set)
+
         return best_solution, self.victim_dict_distances
